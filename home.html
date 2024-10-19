@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Tercera</title>
+    <link rel="stylesheet" href="estiloshome.css">
+</head>
+<body>
+    <!-- Div para mostrar mensajes -->
+    <div id="mensajeAccion" class="mensaje-accion"></div>
+
+    <h1>Gestión de Inventario - Tercera</h1>
+
+    <!-- Botón de cerrar sesión -->
+    <button id="logout-btn" class="logout-btn">Cerrar Sesión</button>
+
+    <!-- Formulario para agregar un nuevo artículo -->
+    <form id="agregarArticuloForm">
+        <h2 id="formTitle">Agregar Nuevo Artículo</h2>
+
+        <label for="nombre">Nombre del artículo:</label>
+        <input type="text" id="nombre" required>
+        <span id="nombreError" class="error"></span>
+
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" min="1" required>
+        <span id="cantidadError" class="error"></span>
+
+        <label for="estado">Estado del artículo:</label>
+        <input type="text" id="estado" required>
+        <span id="estadoError" class="error"></span>
+
+        <label for="ubicacion">Ubicación:</label>
+        <select id="ubicacion" required>
+            <option value="">Seleccione una ubicación</option>
+            <option value="Estante">Estante</option>
+            <option value="B-3">B-3</option>
+            <option value="BF-3">BF-3</option>
+            <option value="Cuartel">Cuartel</option>
+        </select>
+        <span id="ubicacionError" class="error"></span>
+
+        <div id="gabinetesContainer" style="display: none;">
+            <label for="gabinetes">Gabinetes:</label>
+            <select id="gabinetes">
+                <option value="">Seleccione gabinetes</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <span id="gabinetesError" class="error"></span>
+        </div>
+
+        <button type="submit" id="submitBtn">Agregar Artículo</button>
+    </form>
+
+    <!-- Tabla de inventario -->
+    <table id="tablaInventario">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+                <th>Ubicación</th>
+                <th>Gabinetes</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se agregarán los artículos del inventario -->
+        </tbody>
+    </table>
+
+    <!-- Firebase App (lo que carga el core de Firebase) -->
+    <script type="module" src="base.js"></script>
+
+    <script type="module">
+        import { db } from './base.js';
+        import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+        import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+
+        const agregarArticuloForm = document.getElementById('agregarArticuloForm');
+        const tablaInventario = document.getElementById('tablaInventario').getElementsByTagName('tbody')[0];
+        const mensajeAccion = document.getElementById('mensajeAccion');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const gabinetesContainer = document.getElementById('gabinetesContainer');
+        const logoutBtn = document.getElementById('logout-btn'); // Botón de cerrar sesión
+        let editingId = null; // Variable para controlar si se está editando un artículo
+
+        // Función para mostrar mensajes con estilo
+        function mostrarMensajeAccion(mensaje, tipo) {
+            mensajeAccion.textContent = mensaje;
+            mensajeAccion.classList.add('mostrar', tipo);
+
+            // Ocultar el mensaje después de 3 segundos
+            setTimeout(() => {
+                mensajeAccion.classList.remove('mostrar', tipo);
+            }, 3000);
+        }
+
+        // Función para cargar los artículos desde Firestore y mostrarlos en la tabla
+        async function cargarArticulos() {
+            const q = query(collection(db, "artículos"), orderBy("nombre", "asc"));
+            const querySnapshot = await getDocs(q);
+
+            tablaInventario.innerHTML = ''; // Limpiar tabla antes de cargar datos
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                agregarArticuloATabla(doc.id, data.nombre, data.cantidad, data.estado, data.ubicacion, data.gabinetes);
+            });
+        }
+
+        // Función para agregar o editar un artículo
+        agregarArticuloForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombre').value.trim();  
+            const cantidad = document.getElementById('cantidad').value;
+            const estado = document.getElementById('estado').value.trim();
+            const ubicacion = document.getElementById('ubicacion').value;
+            const gabinetes = document.getElementById('gabinetes').value;
+
+            try {
+                if (editingId) {
+                    // Si estamos editando un artículo existente
+                    await updateDoc(doc(db, "artículos", editingId), {
+                        nombre: nombre,
+                        cantidad: parseInt(cantidad),
+                        estado: estado,
+                        ubicacion: ubicacion,
+                        gabinetes: gabinetes || null // Guardar como null si no se seleccionó
+                    });
+                    mostrarMensajeAccion('Artículo editado correctamente', 'exito');
+                    submitBtn.textContent = "Agregar Artículo";
+                    formTitle.textContent = "Agregar Nuevo Artículo";
+                    editingId = null;
+                } else {
+                    // Si estamos agregando un nuevo artículo
+                    await addDoc(collection(db, "artículos"), {
+                        nombre: nombre,
+                        cantidad: parseInt(cantidad),
+                        estado: estado,
+                        ubicacion: ubicacion,
+                        gabinetes: gabinetes || null // Guardar como null si no se seleccionó
+                    });
+                    mostrarMensajeAccion('Artículo agregado exitosamente', 'exito');
+                }
+                cargarArticulos();
+                agregarArticuloForm.reset();
+                gabinetesContainer.style.display = 'none'; // Reiniciar la visibilidad de gabinetes
+            } catch (e) {
+                mostrarMensajeAccion('Error al procesar el artículo', 'error');
+                console.error("Error: ", e);
+            }
+        });
+
+        // Función para agregar un artículo a la tabla
+        function agregarArticuloATabla(id, nombre, cantidad, estado, ubicacion, gabinetes) {
+            const nuevaFila = tablaInventario.insertRow();
+            nuevaFila.setAttribute('data-id', id);
+
+            nuevaFila.innerHTML = `
+                <td>${nombre}</td>
+                <td>${cantidad}</td>
+                <td>${estado}</td>
+                <td>${ubicacion}</td>
+                <td>${gabinetes || 'N/A'}</td> <!-- Mostrar 'N/A' si no hay gabinetes -->
+                <td>
+                    <button class="editarBtn">Editar</button>
+                    <button class="eliminarBtn">Eliminar</button>
+                </td>
+            `;
+
+            // Funcionalidad de editar
+            nuevaFila.querySelector('.editarBtn').addEventListener('click', function() {
+                editarArticulo(id, nombre, cantidad, estado, ubicacion, gabinetes);
+            });
+
+            // Funcionalidad de eliminar con confirmación
+            nuevaFila.querySelector('.eliminarBtn').addEventListener('click', function() {
+                if (confirm('¿Estás seguro que deseas eliminar este artículo?')) {
+                    eliminarArticulo(id, nuevaFila);
+                }
+            });
+        }
+
+        // Función para preparar la edición de un artículo
+        function editarArticulo(id, nombre, cantidad, estado, ubicacion, gabinetes) {
+            document.getElementById('nombre').value = nombre;
+            document.getElementById('cantidad').value = cantidad;
+            document.getElementById('estado').value = estado;
+            document.getElementById('ubicacion').value = ubicacion;
+            document.getElementById('gabinetes').value = gabinetes || ''; // Limpiar el valor si no hay gabinetes
+
+            formTitle.textContent = "Editar Artículo";
+            submitBtn.textContent = "Editar Artículo";
+            editingId = id;
+
+            // Mostrar el contenedor de gabinetes si es necesario
+            if (ubicacion === 'B-3' || ubicacion === 'BF-3') {
+                gabinetesContainer.style.display = 'block';
+            } else {
+                gabinetesContainer.style.display = 'none';
+            }
+        }
+
+        // Función para eliminar un artículo de la base de datos y la tabla
+        async function eliminarArticulo(id, fila) {
+            try {
+                await deleteDoc(doc(db, "artículos", id));
+                mostrarMensajeAccion('Artículo eliminado', 'exito');
+                fila.remove();
+            } catch (error) {
+                console.error("Error eliminando el artículo: ", error);
+                mostrarMensajeAccion('Error al eliminar el artículo', 'error');
+            }
+        }
+
+        // Cargar artículos al inicio
+        cargarArticulos();
+
+        // Manejo de la visibilidad de Gabinetes
+        document.getElementById('ubicacion').addEventListener('change', function() {
+            const ubicacion = this.value;
+            if (ubicacion === 'B-3' || ubicacion === 'BF-3') {
+                gabinetesContainer.style.display = 'block';
+            } else {
+                gabinetesContainer.style.display = 'none';
+                document.getElementById('gabinetes').value = ''; // Limpiar el valor al ocultar
+            }
+        });
+
+        // Manejo de cerrar sesión
+        logoutBtn.addEventListener('click', async () => {
+            const auth = getAuth();
+            try {
+                await signOut(auth);
+                mostrarMensajeAccion('Sesión cerrada correctamente', 'exito');
+                // Redirigir a la página de inicio de sesión, si es necesario
+                window.location.href = 'login.html'; // Cambia a la URL de tu página de inicio de sesión
+            } catch (error) {
+                console.error('Error cerrando sesión:', error);
+                mostrarMensajeAccion('Error al cerrar sesión', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
