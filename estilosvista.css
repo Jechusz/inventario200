@@ -1,0 +1,162 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: lightslategray;
+}
+
+h1 {
+    text-align: center;
+    color: #000000;
+    text-shadow: 0 0 10px white;
+}
+
+form {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: lightblue;
+    border: 1px solid #ccc;
+}
+
+form h2 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 98%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid lightgreen;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 0 10px white;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+table td {
+    color: white;
+    text-shadow: 0 0 10px black;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: lightblue;
+}
+
+.eliminarBtn {
+    background-color: #dc3545;
+}
+
+.eliminarBtn:hover {
+    background-color: #c82333;
+}
+
+.editarBtn {
+    background-color: #007BFF;
+}
+
+.editarBtn:hover {
+    background-color: green;
+}
+
+/* Estilos para los mensajes de acción */
+.mensaje-accion {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: white;
+    background-color: #333;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.mensaje-accion.mostrar {
+    opacity: 1;
+}
+
+.mensaje-accion.exito {
+    background-color: #4CAF50; /* Verde para éxito */
+}
+
+.mensaje-accion.error {
+    background-color: #F44336; /* Rojo para errores */
+}
+
+.alert {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+}
+
+.alert.success {
+    background-color: #d4edda;
+    color: #155724;
+    display: block;
+}
+
+.alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    display: block;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background-color: #ff4d4d; /* Color de fondo del botón */
+    color: white; /* Color del texto */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    z-index: 10; /* Asegura que el botón esté por encima de otros elementos */
+}
+
+.logout-btn:hover {
+    background-color: #ff1a1a; /* Color de fondo al pasar el mouse */
+}

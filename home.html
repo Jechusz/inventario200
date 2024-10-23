@@ -45,10 +45,13 @@
             <label for="gabinetes">Gabinetes:</label>
             <select id="gabinetes">
                 <option value="">Seleccione gabinetes</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
+                <option value="1">Gab 1</option>
+                <option value="2">Gab 2</option>
+                <option value="3">Gab 3</option>
+                <option value="4">Gab 4</option>
+                <option value="5">Gab 5</option>
+                <option value="Cabina">Gab Cabina</option>
+                <option value="Superiores">Gab Superiores</option>
             </select>
             <span id="gabinetesError" class="error"></span>
         </div>
@@ -103,7 +106,7 @@
 
         // Función para cargar los artículos desde Firestore y mostrarlos en la tabla
         async function cargarArticulos() {
-            const q = query(collection(db, "artículos"), orderBy("nombre", "asc"));
+            const q = query(collection(db, "artículos"), orderBy("ubicacion", "asc"));
             const querySnapshot = await getDocs(q);
 
             tablaInventario.innerHTML = ''; // Limpiar tabla antes de cargar datos
@@ -241,7 +244,7 @@
                 await signOut(auth);
                 mostrarMensajeAccion('Sesión cerrada correctamente', 'exito');
                 // Redirigir a la página de inicio de sesión, si es necesario
-                window.location.href = 'login.html'; // Cambia a la URL de tu página de inicio de sesión
+                window.location.href = 'index.html'; // Cambia a la URL de tu página de inicio de sesión
             } catch (error) {
                 console.error('Error cerrando sesión:', error);
                 mostrarMensajeAccion('Error al cerrar sesión', 'error');

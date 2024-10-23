@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Inventario</title>
+    <link rel="stylesheet" href="estilosvista.css">
+</head>
+<body>
+    <!-- Div para mostrar mensajes -->
+    <div id="mensajeAccion" class="mensaje-accion"></div>
+
+    <h1>Vista de Inventario - Tercera</h1>
+
+    <!-- Campo de búsqueda -->
+    <!--<label for="busqueda">Buscar artículo:</label>
+    <input type="text" id="busqueda" placeholder="Ingrese el nombre del artículo" oninput="filtrarArticulos()"> -->
+
+
+    <!-- Tabla de inventario -->
+    <table id="tablaInventario">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+                <th>Ubicación</th>
+                <th>Gabinetes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se agregarán los artículos del inventario -->
+        </tbody>
+    </table>
+
+    <!-- Firebase App (lo que carga el core de Firebase) -->
+    <script type="module" src="base.js"></script>
+
+    <script type="module">
+        import { db } from './base.js';
+        import { collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
+        const tablaInventario = document.getElementById('tablaInventario').getElementsByTagName('tbody')[0];
+        const mensajeAccion = document.getElementById('mensajeAccion');
+
+        // Función para mostrar mensajes con estilo
+        function mostrarMensajeAccion(mensaje, tipo) {
+            mensajeAccion.textContent = mensaje;
+            mensajeAccion.classList.add('mostrar', tipo);
+
+            // Ocultar el mensaje después de 3 segundos
+            setTimeout(() => {
+                mensajeAccion.classList.remove('mostrar', tipo);
+            }, 3000);
+        }
+
+        // Función para cargar los artículos desde Firestore y mostrarlos en la tabla
+        async function cargarArticulos() {
+            const q = query(collection(db, "artículos"), orderBy("ubicacion", "asc"));
+            const querySnapshot = await getDocs(q);
+
+            tablaInventario.innerHTML = ''; // Limpiar tabla antes de cargar datos
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                agregarArticuloATabla(data.nombre, data.cantidad, data.estado, data.ubicacion, data.gabinetes);
+            });
+        }
+
+        // Función para agregar un artículo a la tabla
+        function agregarArticuloATabla(nombre, cantidad, estado, ubicacion, gabinetes) {
+            const nuevaFila = tablaInventario.insertRow();
+
+            nuevaFila.innerHTML = `
+                <td>${nombre}</td>
+                <td>${cantidad}</td>
+                <td>${estado}</td>
+                <td>${ubicacion}</td>
+                <td>${gabinetes || 'N/A'}</td> <!-- Mostrar 'N/A' si no hay gabinetes -->
+            `;
+        }
+        //function filtrarArticulos() {
+          //  const busqueda = document.getElementById('busqueda').value.toLowerCase();
+          //  const filas = tablaInventario.getElementsByTagName('tr');
+        
+            //Array.from(filas).forEach(fila => {
+              //  const nombreArticulo = fila.cells[0].textContent.toLowerCase();
+               // console.log(`Buscando: ${busqueda}, en: ${nombreArticulo}`); // Añade esta línea
+                //if (nombreArticulo.includes(busqueda)) {
+                 //   fila.style.display = '';
+                //} else {
+                  //  fila.style.display = 'none';
+                //}
+            //});
+        //}
+        
+
+        // Cargar artículos al inicio
+        cargarArticulos();
+    </script>
+</body>
+</html>

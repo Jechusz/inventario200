@@ -20,8 +20,8 @@
                     <label>Contraseña</label>
                 </div>
                 <div class="forgot-pass">
-                    <!-- Agregado evento onclick para mostrar el mensaje -->
-                    <a href="#" onclick="alert('Pongale cero por brut@')">Olvidaste tu contraseña?</a>
+                    <a href="#" onclick="alert('Si tiene problemas con su contraseña contacte a un superior o envie un correo a jgestion.de.aplicaciones@gmail.com')">
+                        Olvidaste tu contraseña?</a>
                 </div>
                 <button type="submit" class="btn">Entrar</button>
             </form>
@@ -77,7 +77,7 @@
         <span style="--i:48;"></span>
         <span style="--i:49;"></span>
     </div>
-    
+
     <!-- Firebase App (lo que carga el core de Firebase) -->
     <script type="module" src="base.js"></script>
     <script type="module">
@@ -87,6 +87,9 @@
         const loginForm = document.getElementById('loginForm');
         const nombreInput = document.getElementById('nombre');
         const passwordInput = document.getElementById('password');
+
+        // Lista de usuarios permitidos para acceder a home.html
+        const usuariosPermitidos = ["Ssaez","Jsaez","Bsaez","Csaez"]; // Reemplaza con los nombres permitidos
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -100,7 +103,13 @@
             if (!querySnapshot.empty) {
                 // Usuario validado
                 alert("Inicio de sesión exitoso");
-                window.location.href = "home.html"; // Redirigir al index.html
+
+                // Verificar si el usuario está en la lista de permitidos
+                if (usuariosPermitidos.includes(nombre)) {
+                    window.location.href = "home.html"; // Redirigir a home.html para usuarios permitidos
+                } else {
+                    window.location.href = "vista.html"; // Redirigir a vista.html para otros usuarios
+                }
             } else {
                 alert("Nombre o contraseña incorrectos");
             }
