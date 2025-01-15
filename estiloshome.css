@@ -53,6 +53,7 @@ button:hover {
 
 
 table {
+    margin-top: 10px;
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
@@ -77,6 +78,30 @@ th {
     background-color: lightblue;
 }
 
+.export-btn {
+
+    padding: 10px 15px;
+    background-color: #10b53c; /* Cambia este color a lo que prefieras */
+    color: white; /* El color del texto (puedes cambiarlo también) */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.export-btn:hover {
+    background-color: #13661f; /* Cambia este color para el hover */
+}
+.export-btn2 {
+
+    padding: 10px 15px;
+    background-color: #d60f0f; /* Cambia este color a lo que prefieras */
+    color: white; /* El color del texto (puedes cambiarlo también) */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.export-btn2:hover {
+    background-color: #8e1717; /* Cambia este color para el hover */
+}
 .eliminarBtn {
     background-color: #dc3545;
 }
@@ -160,3 +185,5 @@ th {
 .logout-btn:hover {
     background-color: #ff1a1a; /* Color de fondo al pasar el mouse */
 }
+
+

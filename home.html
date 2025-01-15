@@ -59,7 +59,13 @@
         <button type="submit" id="submitBtn">Agregar Artículo</button>
     </form>
 
-    <!-- Tabla de inventario -->
+    <div>
+        <!-- Botón para exportar la tabla a Excel -->
+        <button id="exportExcel" class="export-btn">Exportar a Excel</button>
+        <button id="exportPdfBtn" class="export-btn2">Exportar a PDF</button>
+    </div>
+        
+        <!-- Tabla de inventario -->
     <table id="tablaInventario">
         <thead>
             <tr>
@@ -78,6 +84,10 @@
 
     <!-- Firebase App (lo que carga el core de Firebase) -->
     <script type="module" src="base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
+    <script type="module" src="tuscript.js"></script>
 
     <script type="module">
         import { db } from './base.js';
@@ -90,6 +100,8 @@
         const formTitle = document.getElementById('formTitle');
         const submitBtn = document.getElementById('submitBtn');
         const gabinetesContainer = document.getElementById('gabinetesContainer');
+        const exportExcelBtn = document.getElementById('exportExcel');
+        const exportPdfBtn = document.getElementById('exportPdfBtn'); // Nuevo botón de PDF
         const logoutBtn = document.getElementById('logout-btn'); // Botón de cerrar sesión
         let editingId = null; // Variable para controlar si se está editando un artículo
 
@@ -250,6 +262,54 @@
                 mostrarMensajeAccion('Error al cerrar sesión', 'error');
             }
         });
+
+        exportExcelBtn.addEventListener('click', () => {
+            const table = document.getElementById('tablaInventario');
+            const rows = table.rows;
+
+            const filteredData = [];
+            for (let i = 0; i < rows.length; i++) {
+                const cells = Array.from(rows[i].cells); // Convertir celdas a array
+                const filteredRow = cells
+                    .slice(0, -1) // Excluir última columna (acciones)
+                    .map(cell => cell.innerText); // Extraer texto
+                filteredData.push(filteredRow);
+            }
+
+            // Crear hoja de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(filteredData);
+            XLSX.utils.book_append_sheet(wb, ws, "Inventario");
+            XLSX.writeFile(wb, "inventario.xlsx");
+        });
+
+        exportPdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf; // Cargar jsPDF
+            const doc = new jsPDF();
+            const table = document.getElementById('tablaInventario');
+            const rows = table.rows;
+
+            const filteredData = [];
+            for (let i = 0; i < rows.length; i++) {
+                const cells = Array.from(rows[i].cells); // Convertir celdas a array
+                const filteredRow = cells
+                    .slice(0, -1) // Excluir la última columna (acciones)
+                    .map(cell => cell.innerText); // Extraer texto
+                filteredData.push(filteredRow);
+            }
+
+            // Crear PDF con los datos filtrados
+            doc.autoTable({
+                head: [filteredData[0]], // Encabezado
+                body: filteredData.slice(1) // Filas de datos
+            });
+
+            doc.save('inventario.pdf');
+        });
+
+
+
+
     </script>
 </body>
 </html>
